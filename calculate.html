@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>อักษรา - คำนวณราคางานพิมพ์</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- PDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <h1>อักษรา 🖨️</h1>
+        <p>โปรแกรมคำนวณราคางานพิมพ์ Offset/Digital (Ultimate Version)</p>
+    </header>
+
+    <div class="container">
+        <!-- Input Section -->
+        <main>
+            <!-- 1. General Info -->
+            <section class="card">
+                <div class="card-title">📝 1. ข้อมูลทั่วไป</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>จำนวนสั่งพิมพ์ (เล่ม)</label>
+                        <input type="number" id="qty" value="1000" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>ขนาดสำเร็จ</label>
+                        <select id="size">
+                            <option value="A4">A4</option>
+                            <option value="A5">A5</option>
+                            <option value="A6">A6</option>
+                            <option value="B5" selected>B5</option>
+                            <option value="B6">B6</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Cover -->
+            <section class="card">
+                <div class="card-title">📘 2. ส่วนปก</div>
+                <div class="form-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="form-group">
+                        <label>กระดาษปก</label>
+                        <select id="coverPaper"></select> <!-- Populated by JS -->
+                    </div>
+                    <div class="form-group">
+                        <label>พิมพ์กี่สี</label>
+                        <select id="coverColor">
+                            <option value="4 สี หน้าเดียว (4/0)" selected>4 สี หน้าเดียว (4/0)</option>
+                            <option value="4 สี สองหน้า (4/4)">4 สี สองหน้า (4/4)</option>
+                            <option value="2 สี หน้าเดียว (2/0)">2 สี หน้าเดียว (2/0)</option>
+                            <option value="2 สี สองหน้า (2/2)">2 สี สองหน้า (2/2)</option>
+                            <option value="1 สี หน้าเดียว (1/0)">1 สี หน้าเดียว (1/0)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>เคลือบปก</label>
+                        <select id="coverFinish">
+                            <option value="ไม่เคลือบ">ไม่เคลือบ</option>
+                            <option value="เคลือบ UV">เคลือบ UV</option>
+                            <option value="เคลือบ PVC ด้าน/เงา" selected>เคลือบ PVC ด้าน/เงา</option>
+                            <option value="เคลือบ Spot UV">เคลือบ Spot UV</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ปั้มทอง</label>
+                        <select id="goldStamp">
+                            <option value="ไม่มี" selected>ไม่มี</option>
+                            <option value="A5">พื้นที่ A5</option>
+                            <option value="A4">พื้นที่ A4</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Inner (3 Sets) -->
+            <section class="card">
+                <div class="card-title">📄 3. ส่วนเนื้อใน (รองรับ 3 ชุด)</div>
+
+                <!-- Set 1 -->
+                <div class="inner-section">
+                    <div class="inner-header">>> ชุดที่ 1 (หลัก)</div>
+                    <div class="form-group">
+                        <label>กระดาษ (1)</label>
+                        <select id="inner1Paper"></select>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>จำนวนหน้า (1)</label>
+                            <input type="number" id="inner1Pages" value="224">
+                        </div>
+                        <div class="form-group">
+                            <label>พิมพ์กี่สี (1)</label>
+                            <select id="inner1Color">
+                                <option value="4 สี (CMYK)" selected>4 สี (CMYK)</option>
+                                <option value="2 สี">2 สี</option>
+                                <option value="1 สี (ดำ)">1 สี (ดำ)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set 2 -->
+                <div class="inner-section">
+                    <div class="inner-header">>> ชุดที่ 2 (แทรกสี / อื่นๆ)</div>
+                    <div class="form-group">
+                        <label>กระดาษ (2)</label>
+                        <select id="inner2Paper"></select>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>จำนวนหน้า (2)</label>
+                            <input type="number" id="inner2Pages" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>พิมพ์กี่สี (2)</label>
+                            <select id="inner2Color">
+                                <option value="4 สี (CMYK)">4 สี (CMYK)</option>
+                                <option value="2 สี">2 สี</option>
+                                <option value="1 สี (ดำ)">1 สี (ดำ)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Set 3 -->
+                <div class="inner-section">
+                    <div class="inner-header">>> ชุดที่ 3 (แทรกสี / อื่นๆ)</div>
+                    <div class="form-group">
+                        <label>กระดาษ (3)</label>
+                        <select id="inner3Paper"></select>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>จำนวนหน้า (3)</label>
+                            <input type="number" id="inner3Pages" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>พิมพ์กี่สี (3)</label>
+                            <select id="inner3Color">
+                                <option value="4 สี (CMYK)">4 สี (CMYK)</option>
+                                <option value="2 สี">2 สี</option>
+                                <option value="1 สี (ดำ)">1 สี (ดำ)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. เข้าเล่ม -->
+            <section class="card">
+                <div class="card-title">📚 4. วิธีเข้าเล่ม</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>วิธีเข้าเล่ม</label>
+                        <select id="bindType">
+                            <option value="ไสกาว" selected>ไสกาว (Perfect Bind)</option>
+                            <option value="เย็บมุงหลังคา">เย็บมุงหลังคา (Saddle Stitch)</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Result Sidebar -->
+        <aside class="results-sidebar">
+            <!-- Cost Breakdown (Admin Only) -->
+            <div class="card result-card" id="cost-breakdown" style="display: none;">
+                <div class="card-title">📊 สรุปต้นทุนหลังบ้าน (Admin)</div>
+                
+                <!-- Single Dropdown to Select & Verify -->
+                <div style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+                    <label style="color: var(--accent); font-weight: bold; font-size: 0.85rem; display: block; margin-bottom: 5px;">🔍 เลือกตรวจสอบใบเสนอราคา:</label>
+                    <select id="historySelect" onchange="loadHistory(this.value)" style="background: #333; color: white; border: 1px solid var(--accent); padding: 8px; width: 100%; border-radius: 4px; font-size: 0.9rem;">
+                        <option value="">-- เลือกเลขที่ใบเสนอราคา --</option>
+                    </select>
+                    <div id="verifyResult" style="margin-top: 10px; font-size: 0.8rem; display: none;"></div>
+                </div>
+
+                <div class="cost-row">
+                    <span>ค่ากระดาษ</span>
+                    <span id="res-paper">-</span>
+                </div>
+                <div class="breakdown-detail" id="res-paper-detail"></div>
+
+                <div class="cost-row" style="margin-top: 8px">
+                    <span>ค่าเพลท</span>
+                    <span id="res-plate">-</span>
+                </div>
+                <div class="breakdown-detail" id="res-plate-detail"></div>
+                <div class="cost-row">
+                    <span>ค่าพิมพ์</span>
+                    <span id="res-print">-</span>
+                </div>
+                <div class="cost-row">
+                    <span>ค่าเคลือบ</span>
+                    <span id="res-coating">-</span>
+                </div>
+                <div class="cost-row">
+                    <span>ค่าปั้มทอง</span>
+                    <span id="res-goldstamp">-</span>
+                </div>
+                <div class="cost-row">
+                    <span>ค่าเข้าเล่ม</span>
+                    <span id="res-binding">-</span>
+                </div>
+
+                <div class="cost-row total">
+                    <span>ต้นทุนรวม</span>
+                    <span id="res-cost-total">-</span>
+                </div>
+                <div class="sub-detail" style="text-align: right; color: rgba(255,255,255,0.7)">
+                    @ <span id="res-cost-per-book">0</span> /เล่ม
+                </div>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="card quotation-card">
+                <div class="card-title" style="color:var(--primary); border-bottom-color:var(--border)">🏷️ สรุปราคาสุทธิ
+                </div>
+
+                <div class="grand-total">
+                    <div class="grand-label">ราคาสุทธิ (Grand Total)</div>
+                    <div class="grand-value" id="quo-grand-total">0.00</div>
+                    <div style="font-size: 1.1rem; color: var(--text-main); font-weight: 600; margin-top: 5px;">
+                        เฉลี่ย <span id="quo-price-per-book" style="color:var(--accent);">0.00 บาท</span>
+                    </div>
+                </div>
+
+                <!-- Request Form -->
+                <div class="request-form" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; background: #fdfdfd; border-radius: 0 0 12px 12px;">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--primary); margin-bottom: 12px; text-align: center;">📩 ขอใบเสนอราคาเป็นทางการ</div>
+                    <form id="quoteForm" style="display: flex; flex-direction: column; gap: 10px; padding: 0 5px;">
+                        <input type="text" name="customer_name" id="custName" placeholder="ชื่อ-นามสกุล / หน่วยงาน" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;">
+                        <input type="text" name="customer_phone" id="custPhone" placeholder="เบอร์โทรศัพท์ติดต่อ" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;">
+                        <input type="email" name="customer_email" id="custEmail" placeholder="อีเมลสำหรับติดต่อกลับ" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem;">
+                        
+                        <!-- Hidden fields for specs -->
+                        <input type="hidden" name="printing_qty" id="form-qty">
+                        <input type="hidden" name="printing_size" id="form-size">
+                        <input type="hidden" name="printing_total" id="form-total">
+                        <input type="hidden" name="printing_specs" id="form-specs">
+
+                        <button type="button" onclick="requestQuotation()" id="submitBtn" style="width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 5px;">
+                            ส่งข้อมูลขอใบเสนอราคา (อัตโนมัติ)
+                        </button>
+                    </form>
+                    <div id="formStatus" style="display: none; text-align: center; margin-top: 10px; font-size: 0.85rem; color: #28a745; font-weight: 600;">
+                        ✅ ส่งข้อมูลเรียบร้อยแล้ว! ทีมงานจะติดต่อกลับโดยเร็วที่สุด
+                    </div>
+                    <p style="font-size: 0.7rem; color: #777; text-align: center; margin-top: 10px; padding: 0 10px;">* ระบบจะส่งข้อมูลสเปกงานไปยังทีมงานอักษราทันที</p>
+                </div>
+            </div>
+
+            <footer>
+                <div style="margin-bottom: 10px;">
+                    <button onclick="toggleAdmin()" style="background: none; border: none; color: rgba(255,255,255,0.2); cursor: pointer; font-size: 0.8rem;">🔑 Admin Mode</button>
+                </div>
+                &copy; 2024 PrintConnext <br> Akkhara Calculation System
+            </footer>
+        </aside>
+    </div>
+
+    <!-- Hidden Quotation Template for PDF -->
+    <div id="quotation-template" style="display: none;">
+        <div style="padding: 40px; font-family: 'Sarabun', sans-serif; color: #333; line-height: 1.5; background: white;">
+            <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #001c3a; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="color: #001c3a; margin: 0; font-size: 2rem;">อักษรา (Axaraa.com)</h1>
+                    <p style="margin: 5px 0; font-size: 0.9rem;">สำนักพิมพ์และโรงพิมพ์คุณภาพสูง</p>
+                    <p style="margin: 0; font-size: 0.8rem;">โทร: 096-442-3595 | อีเมล: axaraa.com@gmail.com</p>
+                </div>
+                <div style="text-align: right;">
+                    <h2 style="margin: 0; color: #555;">ใบเสนอราคา</h2>
+                    <p style="margin: 5px 0;">เลขที่: <span id="pdf-quo-no">QT-2024-000001</span></p>
+                    <p style="margin: 0;">วันที่: <span id="pdf-date"></span></p>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <h3 style="border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px;">ข้อมูลลูกค้า</h3>
+                <p style="margin: 5px 0;"><strong>ชื่อผู้ติดต่อ:</strong> <span id="pdf-cust-name"></span></p>
+                <p style="margin: 5px 0;"><strong>เบอร์โทรศัพท์:</strong> <span id="pdf-cust-phone"></span></p>
+                <p style="margin: 5px 0;"><strong>อีเมล:</strong> <span id="pdf-cust-email"></span></p>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+                <thead>
+                    <tr style="background: #f4f4f4;">
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">รายละเอียดงานพิมพ์</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: center;">จำนวน</th>
+                        <th style="border: 1px solid #ddd; padding: 10px; text-align: right;">รวมเงิน</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 15px;">
+                            <p style="margin: 0;"><strong>ขนาดเล่ม:</strong> <span id="pdf-size"></span></p>
+                            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">
+                                <strong>ปก:</strong> <span id="pdf-cover"></span><br>
+                                <strong>เนื้อใน:</strong> <span id="pdf-inner"></span><br>
+                                <strong>วิธีเข้าเล่ม:</strong> <span id="pdf-bind"></span>
+                            </p>
+                        </td>
+                        <td style="border: 1px solid #ddd; padding: 15px; text-align: center;">
+                            <span id="pdf-qty"></span> เล่ม
+                        </td>
+                        <td style="border: 1px solid #ddd; padding: 15px; text-align: right; font-weight: bold;">
+                            <span id="pdf-total"></span> บาท
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="display: flex; justify-content: space-between; margin-top: 50px;">
+                <div style="text-align: center; width: 200px;">
+                    <p style="margin-bottom: 40px;">ผู้ขอใบเสนอราคา</p>
+                    <p>....................................................</p>
+                    <p>( <span id="pdf-cust-name-sign"></span> )</p>
+                </div>
+                <div style="text-align: center; width: 200px;">
+                    <p style="margin-bottom: 40px;">ผู้อนุมัติ (อักษรา)</p>
+                    <div id="signature-placeholder" style="height: 40px; margin-bottom: 5px; border-bottom: 1px solid #333; width: 160px; margin-left: auto; margin-right: auto;">
+                        <!-- Signature will be added here by admin -->
+                    </div>
+                    <p>( ฝ่ายบริหารงานพิมพ์ )</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px; font-size: 0.75rem; color: #777; text-align: center; border-top: 1px solid #eee; padding-top: 10px;">
+                ใบเสนอราคานี้มีผลเป็นเวลา 30 วันนับจากวันที่ระบุในเอกสาร <br>
+                ใบเสนอราคาจะมีผลก็ต่อเมื่อ ผู้อนุมัติ ลงลายมือชื่อพร้อมประทับตราเท่านั้น
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
